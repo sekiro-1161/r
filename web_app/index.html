@@ -3,158 +3,613 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Суши-Бургер</title>
+    <title>Sole Mio 🍣</title>
     
-    <!-- Telegram Web App SDK - загружается асинхронно -->
+    <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js" async></script>
     
     <style>
-        /* Базовые стили - минимум для быстрого старта */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-        body { background: #f8f9fa; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            position: relative;
+        }
+
+        /* Динамические фоны для разных разделов */
+        body.rolls-bg {
+            background: url('https://images.unsplash.com/photo-1617196035154-1e7e6e28b0db?w=1600') no-repeat center center fixed;
+            background-size: cover;
+        }
         
+        body.pizza-bg {
+            background: url('https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1600') no-repeat center center fixed;
+            background-size: cover;
+        }
+        
+        body.snacks-bg {
+            background: url('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=1600') no-repeat center center fixed;
+            background-size: cover;
+        }
+        
+        body.drinks-bg {
+            background: url('https://images.unsplash.com/photo-1544145945-f90425340c7e?w=1600') no-repeat center center fixed;
+            background-size: cover;
+        }
+        
+        body.sets-bg {
+            background: url('https://images.unsplash.com/photo-1611143669185-af224c5e3252?w=1600') no-repeat center center fixed;
+            background-size: cover;
+        }
+        
+        body.combo-bg {
+            background: url('https://images.unsplash.com/photo-1606755456206-b25206cde27e?w=1600') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        /* Затемняющий слой для читаемости */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+
         .app {
-            max-width: 450px; width: 100%; height: 95vh; background: #f8f9fa;
-            border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden; display: flex; flex-direction: column;
+            max-width: 450px;
+            width: 100%;
+            height: 95vh;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
-        /* Шапка - минимальная */
+
+        /* Шапка с названием ресторана */
         .header {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            padding: 15px; color: white; text-align: center;
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            padding: 20px 15px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
         }
-        
-        .header h1 { font-size: 24px; margin-bottom: 5px; }
-        
-        /* Категории - скролл */
+
+        .header::before {
+            content: '🍕';
+            position: absolute;
+            font-size: 60px;
+            opacity: 0.1;
+            right: 10px;
+            top: -10px;
+            transform: rotate(15deg);
+        }
+
+        .header::after {
+            content: '🍣';
+            position: absolute;
+            font-size: 60px;
+            opacity: 0.1;
+            left: 10px;
+            bottom: -10px;
+            transform: rotate(-15deg);
+        }
+
+        .restaurant-name {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+            margin-bottom: 5px;
+            font-family: 'Arial Black', sans-serif;
+        }
+
+        .restaurant-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        .welcome-message {
+            font-size: 13px;
+            margin-top: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        /* Категории меню */
         .categories {
-            display: flex; overflow-x: auto; padding: 15px; gap: 10px;
-            background: white; border-bottom: 1px solid #eee;
+            display: flex;
+            overflow-x: auto;
+            padding: 15px;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
             scrollbar-width: thin;
+            backdrop-filter: blur(5px);
         }
-        
+
         .category-btn {
-            padding: 10px 20px; border: none; border-radius: 25px;
-            background: #f1f2f6; font-weight: 600; cursor: pointer;
-            flex-shrink: 0; transition: 0.2s;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #333;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.5);
         }
-        
+
         .category-btn.active {
-            background: #e74c3c; color: white;
+            background: #8B4513;
+            color: white;
+            border-color: #D2691E;
+            box-shadow: 0 4px 10px rgba(139, 69, 19, 0.3);
         }
-        
-        /* Контент */
-        .main { flex: 1; overflow-y: auto; padding: 15px; }
-        
+
+        .category-btn i {
+            margin-right: 5px;
+        }
+
+        /* Основной контент */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        /* Заголовки категорий */
+        .category-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #8B4513;
+            margin: 0 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #D2691E;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+        }
+
+        .category-title i {
+            font-size: 28px;
+        }
+
         /* Сетка товаров */
         .items-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 12px; margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
         }
-        
-        /* Карточка товара - легкая */
+
+        /* Карточка товара со стеклянным эффектом */
         .item-card {
-            background: white; border-radius: 16px; padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            display: flex; flex-direction: column;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            flex-direction: column;
         }
-        
-        .item-name { font-weight: 700; color: #2d3436; font-size: 15px; margin-bottom: 4px; }
-        .item-description { font-size: 11px; color: #7f8c8d; margin-bottom: 8px; }
-        .item-price { font-weight: 700; color: #e74c3c; font-size: 18px; margin-bottom: 8px; }
-        
+
+        .item-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Декоративный элемент для карточки */
+        .item-card::before {
+            content: '🍣';
+            position: absolute;
+            font-size: 60px;
+            opacity: 0.1;
+            right: -10px;
+            bottom: -10px;
+            transform: rotate(15deg);
+            pointer-events: none;
+        }
+
+        .item-card[data-category="pizza"]::before {
+            content: '🍕';
+        }
+
+        .item-card[data-category="snacks"]::before {
+            content: '🍟';
+        }
+
+        .item-card[data-category="drinks"]::before {
+            content: '🥤';
+        }
+
+        .item-card[data-category="sets"]::before {
+            content: '🍱';
+        }
+
+        .item-card[data-category="combo"]::before {
+            content: '🍱';
+        }
+
+        .item-name {
+            font-weight: 700;
+            color: #8B4513;
+            font-size: 16px;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .item-description {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.4;
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .item-price {
+            font-weight: 700;
+            color: #D2691E;
+            font-size: 20px;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
         .add-to-cart {
-            background: #27ae60; color: white; border: none;
-            padding: 8px; border-radius: 20px; font-weight: 600;
-            cursor: pointer; transition: 0.2s;
+            width: 100%;
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 5px;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
+
+        .add-to-cart:hover {
+            transform: scale(1.02);
+            background: linear-gradient(135deg, #A0522D, #CD853F);
+        }
+
+        .add-to-cart:active {
+            transform: scale(0.98);
+        }
+
+        /* Специальное оформление для сетов */
+        .set-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #D2691E;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            z-index: 2;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .set-items {
+            font-size: 11px;
+            color: #8B4513;
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1px dashed #D2691E;
+        }
+
         /* Корзина */
-        .cart-section { padding: 15px; }
+        .cart-section {
+            padding: 15px;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .cart-items {
+            margin-bottom: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .cart-item {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-name {
+            font-weight: 600;
+            color: #8B4513;
+        }
+
+        .cart-item-price {
+            color: #D2691E;
+            font-weight: 600;
+        }
+
+        .cart-item-remove {
+            background: #8B4513;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
         .cart-total {
-            background: #2c3e50; color: white; padding: 15px;
-            border-radius: 12px; text-align: center; font-size: 18px;
-            margin-bottom: 15px;
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
         }
-        
+
+        .payment-methods {
+            margin-bottom: 20px;
+        }
+
+        .payment-methods h3 {
+            color: #8B4513;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .payment-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
         .payment-btn {
-            flex: 1; padding: 12px; border: 2px solid #ecf0f1;
-            border-radius: 12px; background: white; cursor: pointer;
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #DEB887;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            color: #8B4513;
         }
-        
+
         .payment-btn.active {
-            background: #e74c3c; color: white; border-color: #e74c3c;
+            background: #8B4513;
+            color: white;
+            border-color: #D2691E;
         }
-        
+
+        .cart-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .order-btn, .clear-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
         .order-btn {
-            background: #27ae60; color: white; border: none;
-            padding: 15px; border-radius: 12px; font-weight: 600;
-            cursor: pointer; width: 100%;
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            color: white;
         }
-        
-        .order-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        
+
+        .order-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .clear-btn {
+            background: #DEB887;
+            color: #8B4513;
+        }
+
         /* Нижняя навигация */
         .bottom-nav {
-            background: white; display: flex; padding: 10px;
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid rgba(139, 69, 19, 0.2);
         }
-        
+
         .nav-btn {
-            flex: 1; background: none; border: none; cursor: pointer;
-            display: flex; flex-direction: column; align-items: center;
-            color: #b2bec3; transition: 0.2s;
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: #8B4513;
+            transition: color 0.2s;
+            position: relative;
+            opacity: 0.7;
         }
-        
-        .nav-btn.active { color: #e74c3c; }
-        .nav-icon { font-size: 24px; }
-        .nav-text { font-size: 11px; }
+
+        .nav-btn.active {
+            opacity: 1;
+            color: #D2691E;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        .nav-text {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
         .cart-badge {
-            position: absolute; background: #e74c3c; color: white;
-            border-radius: 50%; width: 18px; height: 18px;
-            font-size: 10px; display: flex; align-items: center; justify-content: center;
+            position: absolute;
+            top: 0;
+            right: 20px;
+            background: #D2691E;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
         }
-        
+
         /* Уведомления */
         .notification {
-            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-            background: #2c3e50; color: white; padding: 10px 20px;
-            border-radius: 50px; display: none; z-index: 1000;
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #8B4513;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: none;
+            animation: slideUp 0.3s ease;
+            z-index: 1000;
+            border: 1px solid #D2691E;
         }
-        
-        .notification.show { display: block; }
-        
+
+        .notification.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                bottom: 50px;
+                opacity: 0;
+            }
+            to {
+                bottom: 100px;
+                opacity: 1;
+            }
+        }
+
         /* Индикатор загрузки */
         .loading {
-            text-align: center; padding: 30px; color: #7f8c8d;
-            font-size: 14px;
+            text-align: center;
+            padding: 40px;
+            color: #8B4513;
+            font-size: 16px;
         }
-        
+
         @media (max-width: 480px) {
-            .app { height: 100vh; border-radius: 0; }
-            .items-grid { grid-template-columns: 1fr; }
+            .app {
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
-<body>
+<body class="rolls-bg">
     <div class="app">
+        <!-- Шапка с названием ресторана -->
         <header class="header">
-            <h1>🍣 Суши-Бургер</h1>
-            <div id="welcomeMessage" style="font-size: 13px;">Загрузка...</div>
+            <div class="restaurant-name">SOLE MIO</div>
+            <div class="restaurant-subtitle">Italian • Japanese Fusion</div>
+            <div class="welcome-message" id="welcomeMessage">Загрузка...</div>
         </header>
 
-        <!-- Категории -->
+        <!-- Категории меню -->
         <div class="categories" id="categories">
-            <button class="category-btn active" data-cat="rolls">🍣 Роллы</button>
-            <button class="category-btn" data-cat="pizza">🍕 Пицца</button>
-            <button class="category-btn" data-cat="snacks">🍟 Закуски</button>
-            <button class="category-btn" data-cat="drinks">🥤 Напитки</button>
-            <button class="category-btn" data-cat="combo">🍱 Комбо</button>
+            <button class="category-btn active" data-cat="rolls">
+                <i>🍣</i> Роллы
+            </button>
+            <button class="category-btn" data-cat="pizza">
+                <i>🍕</i> Пицца
+            </button>
+            <button class="category-btn" data-cat="sets">
+                <i>🍱</i> Сеты
+            </button>
+            <button class="category-btn" data-cat="snacks">
+                <i>🍟</i> Закуски
+            </button>
+            <button class="category-btn" data-cat="drinks">
+                <i>🥤</i> Напитки
+            </button>
+            <button class="category-btn" data-cat="combo">
+                <i>🍱</i> Комбо
+            </button>
         </div>
 
+        <!-- Основной контент -->
         <main class="main" id="main">
-            <!-- Здесь будет динамически подгружаться меню -->
             <div class="loading" id="loadingIndicator">⏳ Загрузка меню...</div>
         </main>
 
@@ -175,12 +630,12 @@
         </nav>
     </div>
 
+    <!-- Уведомления -->
     <div class="notification" id="notification"></div>
 
     <script>
-        // Оптимизированный JavaScript
         (function() {
-            console.log('🚀 Mini App запускается...');
+            console.log('🚀 Sole Mio запускается...');
             
             // Telegram Web App
             let tg = window.Telegram?.WebApp;
@@ -193,62 +648,181 @@
                 document.getElementById('welcomeMessage').innerText = 'Демо-режим';
             }
             
-            // Меню (только названия и цены - ничего лишнего)
+            // ПОЛНОЕ МЕНЮ НА ОСНОВЕ ФОТОГРАФИЙ
             const MENU = {
+                // Роллы (из фото)
                 rolls: [
                     { id: 'philadelphia', name: 'ФИЛАДЕЛЬФИЯ', desc: 'Рис, норн, сыр, лосось', price: 38 },
-                    { id: 'bekono', name: 'БЕКОНО МАКИ', desc: 'Рис, норн, огурец, сыр, бекон', price: 38 },
-                    { id: 'syake', name: 'СЯКЕ МАКИ', desc: 'Рис, лосось, норн', price: 20 },
-                    { id: 'kappa', name: 'КАППА МАКИ', desc: 'Рис, огурец, норн', price: 20 },
-                    { id: 'voskhod', name: 'ВОСХОДЯЩЕЕ СОЛНЦЕ', desc: 'Рис, норн, креветка, икра, сыр', price: 38 }
+                    { id: 'bekono-maki', name: 'БЕКОНО МАКИ', desc: 'Рис, норн, огурец, сыр, бекон', price: 38 },
+                    { id: 'syake-maki', name: 'СЯКЕ МАКИ', desc: 'Рис, лосось, норн', price: 20 },
+                    { id: 'kappa-maki', name: 'КАППА МАКИ', desc: 'Рис, огурец, норн', price: 20 },
+                    { id: 'voskhod', name: 'ВОСХОДЯЩЕЕ СОЛНЦЕ', desc: 'Рис, креветка, икра, сыр', price: 38 },
+                    { id: 'philadelphia-light', name: 'ФИЛАДЕЛЬФИЯ ЛАЙТ', desc: 'Рис, сыр, лосось, огурец', price: 38 },
+                    { id: 'bonito', name: 'БОНИТО', desc: 'Рис, сыр, лосось, стружка тунца', price: 38 },
+                    { id: 'tokyo', name: 'ТОКИО', desc: 'Рис, лосось, сыр, кунжут', price: 38 },
+                    { id: 'california-fish', name: 'КАЛИФОРНИЯ РЫБА', desc: 'Рис, сыр, лосось, икра тобико', price: 38 },
+                    { id: 'california-shrimp', name: 'КАЛИФОРНИЯ КРЕВЕТКА', desc: 'Рис, сыр, креветка, икра', price: 38 },
+                    { id: 'green-roll', name: 'ГРИН РОЛЛ', desc: 'Рис, сыр, лосось, огурец', price: 38 },
+                    { id: 'tanay', name: 'ТАНАЙ', desc: 'Копченая курица, сыр, соус унаги', price: 45 },
+                    { id: 'lava-fish', name: 'ЛАВА РЫБА', desc: 'Рис, лосось, сырная шапочка', price: 38 },
+                    { id: 'lava-shrimp', name: 'ЛАВА КРЕВЕТКА', desc: 'Рис, креветка, сырная шапочка', price: 38 },
+                    { id: 'geysha', name: 'ГЕЙША', desc: 'Рис, рыба, огурец, сыр', price: 38 },
+                    { id: 'fried', name: 'ЖАРЕННЫЕ', desc: 'Рис, норн, сыр', price: 40 },
+                    { id: 'ebi-maki', name: 'ЭБИ МАКИ', desc: 'Жареный с креветкой, сырная шапка', price: 45 },
+                    { id: 'baked', name: 'ЗАПЕЧЁННЫЕ', desc: 'Рис, норн, сыр', price: 40 },
+                    { id: 'kitomaki', name: 'КИТОМАКИ', desc: 'Креветка, огурец, лосось, соус манго-чили', price: 45 }
                 ],
+                
+                // Пицца (из фото)
                 pizza: [
-                    { id: 'margarita', name: 'МАРГАРИТА', desc: 'Томатный соус, помидоры, сыр', price: 350 },
-                    { id: 'peperoni', name: 'ПЕПЕРОНИ', desc: 'Томатный соус, пеперони, сыр', price: 350 },
-                    { id: 'myasnaya', name: 'МЯСНАЯ', desc: 'Ветчина, пеперони, бекон, сыр', price: 450 }
+                    { id: 'margarita', name: 'МАРГАРИТА', desc: 'Томатный соус, помидоры, сыр моцарелла', price: 350 },
+                    { id: 'peperoni', name: 'ПЕПЕРОНИ', desc: 'Томатный соус, пеперони, сыр моцарелла', price: 350 },
+                    { id: 'ham-mushroom', name: 'ВЕТЧИНА ГРИБЫ', desc: 'Сливочно-чесночный соус, ветчина, грибы', price: 350 },
+                    { id: 'meat', name: 'МЯСНАЯ', desc: 'Ветчина, пеперони, бекон, сыр моцарелла', price: 450 },
+                    { id: '4-cheese', name: '4 СЫРА', desc: 'Соус песто, чеддер, моцарелла, дор-блю, брю', price: 400 },
+                    { id: 'pineapple', name: 'С АНАНАСАМИ', desc: 'Томатный соус, ветчина, ананасы, сыр', price: 380 },
+                    { id: 'assorted', name: 'АССОРТИ', desc: 'На ваш выбор', price: 400 },
+                    { id: 'cacciatore', name: 'КАЧЧАТОРА', desc: 'Соус барбекю, колбаски, помидоры', price: 380 },
+                    { id: 'vegetarian', name: 'ВЕГЕТАРИАНСКАЯ', desc: 'Помидоры, грибы, перец, сыр', price: 350 },
+                    { id: 'neapolitano', name: 'НЕАПОЛИТАНО', desc: 'Копченая курица, корнишоны, соус барбекю', price: 380 },
+                    { id: 'julien', name: 'ЖЮЛЬЕН', desc: 'Курица, грибы, сыр, соус гриль', price: 430 },
+                    { id: 'seafood', name: 'МОРСКАЯ', desc: 'Рыба, креветка, сыр моцарелла', price: 550 },
+                    { id: 'garlic-bread', name: 'ЧЕСНОЧНАЯ ЛЕПЁШКА', desc: 'Чесночная лепёшка', price: 250 }
                 ],
+                
+                // СЕТЫ (новый раздел)
+                sets: [
+                    { 
+                        id: 'set-tokyo', 
+                        name: 'СЕТ ТОКИО', 
+                        desc: 'Популярные роллы для компании', 
+                        price: 899,
+                        includes: 'Филадельфия (4шт), Калифорния (4шт), Бонито (4шт), Гейша (4шт)'
+                    },
+                    { 
+                        id: 'set-osaka', 
+                        name: 'СЕТ ОСАКА', 
+                        desc: 'Хиты японской кухни', 
+                        price: 1290,
+                        includes: 'Филадельфия (8шт), Калифорния с креветкой (8шт), Жаренные (6шт), Запечённые (6шт)'
+                    },
+                    { 
+                        id: 'set-family', 
+                        name: 'СЕТ СЕМЕЙНЫЙ', 
+                        desc: 'Большой набор для всей семьи', 
+                        price: 1890,
+                        includes: 'Филадельфия (8шт), Калифорния (8шт), Танай (6шт), Китомаки (6шт), Жаренные (6шт), Запечённые (6шт)'
+                    },
+                    { 
+                        id: 'set-premium', 
+                        name: 'СЕТ ПРЕМИУМ', 
+                        desc: 'Лучшие роллы с лососем и креветкой', 
+                        price: 1590,
+                        includes: 'Лава Рыба (6шт), Лава Креветка (6шт), Эби Маки (6шт), Филадельфия Лайт (8шт)'
+                    },
+                    { 
+                        id: 'set-test', 
+                        name: 'ТЕСТОВЫЙ СЕТ', 
+                        desc: 'Попробуйте всё понемногу', 
+                        price: 590,
+                        includes: 'Филадельфия (2шт), Калифорния (2шт), Сяке Маки (2шт), Каппа Маки (2шт)'
+                    }
+                ],
+                
+                // Закуски (из фото)
                 snacks: [
+                    { id: 'onion-rings', name: 'ЛУКОВЫЕ КОЛЬЦА', desc: 'Хрустящие луковые кольца', price: 150 },
+                    { id: 'hot-wings', name: 'КРЫЛЬЯ ОСТРЫЕ', desc: 'Острые куриные крылья', price: 250 },
+                    { id: 'cheese-sticks', name: 'СЫРНЫЕ ПАЛОЧКИ', desc: 'Сырные палочки', price: 210 },
+                    { id: 'tom-yam', name: 'СУП ТОМ-ЯМ', desc: 'С морепродуктами', price: 320 },
+                    { id: 'bok-chicken', name: 'БОК КУРИЦА', desc: 'Рис/панна с курицей', price: 300 },
+                    { id: 'bok-pork', name: 'БОК СВИНИНА', desc: 'Рис/панна со свининой', price: 300 },
                     { id: 'fries', name: 'ФРИ', desc: 'Картофель фри + кетчуп', price: 100 },
-                    { id: 'naggets', name: 'НАГГЕТСЫ', desc: 'Куриные наггетсы', price: 150 },
-                    { id: 'burger', name: 'БУРГЕР', desc: 'С наггетсами или котлетой', price: 150 }
+                    { id: 'potato', name: 'КАРТОФЕЛЬ ПО-ДЕРЕВЕНСКИ', desc: 'Дольки + кетчуп', price: 120 },
+                    { id: 'burger', name: 'БУРГЕР', desc: 'С наггетсами или котлетой', price: 150 },
+                    { id: 'nuggets', name: 'НАГГЕТСЫ', desc: 'Куриные наггетсы', price: 150 }
                 ],
+                
+                // Напитки (из фото)
                 drinks: [
                     { id: 'water', name: 'ВОДА 0.5', desc: 'Питьевая вода', price: 50 },
-                    { id: 'cola', name: 'КОЛА 0.5', desc: 'Кола', price: 100 }
+                    { id: 'mors', name: 'МОРС', desc: 'Клюквенный/брусничный 0.33', price: 50 },
+                    { id: 'cola', name: 'КОЛА 0.5', desc: 'Coca-Cola', price: 100 },
+                    { id: 'lemonade', name: 'ЛИМОНАД 1Л', desc: 'Домашний лимонад', price: 150 },
+                    { id: 'milkshake-vanilla', name: 'МОЛОЧНЫЙ КОКТЕЙЛЬ', desc: 'Ванильный 0.33', price: 150 },
+                    { id: 'milkshake-strawberry', name: 'МОЛОЧНЫЙ КОКТЕЙЛЬ', desc: 'Клубничный 0.33', price: 150 },
+                    { id: 'milkshake-chocolate', name: 'МОЛОЧНЫЙ КОКТЕЙЛЬ', desc: 'Шоколадный 0.33', price: 150 }
                 ],
+                
+                // Комбо
                 combo: [
-                    { id: 'combo', name: 'КОМБО', desc: 'Нагетсы + фри + соус', price: 150 }
+                    { id: 'combo-1', name: 'КОМБО №1', desc: 'Нагетсы + фри + соус', price: 150 }
                 ]
             };
             
-            // Состояние
+            // Состояние приложения
             let cart = [];
             let currentCategory = 'rolls';
             let selectedPayment = null;
             
-            // Быстрый рендер категории
+            // Функция смены фона
+            function changeBackground(category) {
+                document.body.className = '';
+                document.body.classList.add(category + '-bg');
+            }
+            
+            // Рендер категории
             function renderCategory(category) {
+                changeBackground(category);
+                
                 const items = MENU[category] || [];
                 const main = document.getElementById('main');
                 const loading = document.getElementById('loadingIndicator');
                 
                 if (loading) loading.style.display = 'none';
                 
-                let html = `<h2 style="margin:0 0 15px 0;">${
-                    category === 'rolls' ? '🍣 Роллы' :
-                    category === 'pizza' ? '🍕 Пицца' :
-                    category === 'snacks' ? '🍟 Закуски' :
-                    category === 'drinks' ? '🥤 Напитки' : '🍱 Комбо'
-                }</h2>`;
+                // Заголовок категории
+                let title = '';
+                let icon = '';
                 
+                switch(category) {
+                    case 'rolls':
+                        title = '🍣 РОЛЛЫ';
+                        icon = '🍣';
+                        break;
+                    case 'pizza':
+                        title = '🍕 ПИЦЦА';
+                        icon = '🍕';
+                        break;
+                    case 'sets':
+                        title = '🍱 СЕТЫ';
+                        icon = '🍱';
+                        break;
+                    case 'snacks':
+                        title = '🍟 ЗАКУСКИ';
+                        icon = '🍟';
+                        break;
+                    case 'drinks':
+                        title = '🥤 НАПИТКИ';
+                        icon = '🥤';
+                        break;
+                    case 'combo':
+                        title = '🍱 КОМБО';
+                        icon = '🍱';
+                        break;
+                }
+                
+                let html = `<div class="category-title"><i>${icon}</i> ${title}</div>`;
                 html += '<div class="items-grid">';
                 
                 for (let item of items) {
                     html += `
-                        <div class="item-card">
+                        <div class="item-card" data-category="${category}">
+                            ${category === 'sets' ? '<div class="set-badge">СЕТ</div>' : ''}
                             <div class="item-name">${item.name}</div>
                             <div class="item-description">${item.desc}</div>
                             <div class="item-price">${item.price}₽</div>
+                            ${item.includes ? `<div class="set-items">📦 ${item.includes}</div>` : ''}
                             <button class="add-to-cart" 
                                 data-id="${item.id}"
                                 data-name="${item.name}"
@@ -263,7 +837,7 @@
                 main.innerHTML = html;
             }
             
-            // Показать первую категорию сразу
+            // Показать первую категорию
             renderCategory('rolls');
             
             // Переключение категорий
@@ -295,113 +869,6 @@
             });
             
             // Навигация
-            document.getElementById('menuNavBtn').addEventListener('click', function() {
-                document.getElementById('menuNavBtn').classList.add('active');
-                document.getElementById('cartNavBtn').classList.remove('active');
-                document.getElementById('main').style.display = 'block';
-                document.getElementById('cartSection').style.display = 'none';
-                document.querySelector('.categories').style.display = 'flex';
-            });
-            
-            document.getElementById('cartNavBtn').addEventListener('click', function() {
-                document.getElementById('menuNavBtn').classList.remove('active');
-                document.getElementById('cartNavBtn').classList.add('active');
-                document.querySelector('.categories').style.display = 'none';
-                document.getElementById('main').style.display = 'none';
-                document.getElementById('cartSection').style.display = 'block';
-                showCart();
-            });
-            
-            // Показать корзину
-            function showCart() {
-                if (cart.length === 0) {
-                    document.getElementById('cartSection').innerHTML = `
-                        <h2>🛒 Корзина пуста</h2>
-                        <button class="order-btn" onclick="document.getElementById('menuNavBtn').click()">
-                            🍣 В меню
-                        </button>
-                    `;
-                    return;
-                }
-                
-                let total = 0;
-                let itemsHtml = '';
-                
-                for (let item of cart) {
-                    total += item.price;
-                    itemsHtml += `
-                        <div style="background:white; padding:12px; border-radius:12px; margin-bottom:8px;">
-                            <div style="font-weight:600;">${item.name}</div>
-                            <div style="color:#e74c3c;">${item.price}₽</div>
-                        </div>
-                    `;
-                }
-                
-                document.getElementById('cartSection').innerHTML = `
-                    <h2>🛒 Корзина</h2>
-                    <div style="margin-bottom:20px;">${itemsHtml}</div>
-                    <div class="cart-total">Итого: ${total}₽</div>
-                    
-                    <div style="margin-bottom:20px;">
-                        <h3>💳 Оплата:</h3>
-                        <div style="display:flex; gap:10px;">
-                            <button class="payment-btn" id="onlinePay">💳 Онлайн</button>
-                            <button class="payment-btn" id="cashPay">💵 Наличными</button>
-                        </div>
-                    </div>
-                    
-                    <button class="order-btn" id="orderBtn" disabled>✅ Оформить</button>
-                    <button class="order-btn" id="clearBtn" style="background:#95a5a6; margin-top:10px;">🗑️ Очистить</button>
-                `;
-                
-                // Обработчики
-                document.getElementById('onlinePay').addEventListener('click', function() {
-                    selectedPayment = 'online';
-                    document.getElementById('onlinePay').classList.add('active');
-                    document.getElementById('cashPay').classList.remove('active');
-                    document.getElementById('orderBtn').disabled = false;
-                });
-                
-                document.getElementById('cashPay').addEventListener('click', function() {
-                    selectedPayment = 'cash';
-                    document.getElementById('onlinePay').classList.remove('active');
-                    document.getElementById('cashPay').classList.add('active');
-                    document.getElementById('orderBtn').disabled = false;
-                });
-                
-                document.getElementById('orderBtn').addEventListener('click', function() {
-                    if (tg) {
-                        tg.sendData(JSON.stringify({
-                            action: 'create_order',
-                            items: cart,
-                            total: total,
-                            payment_method: selectedPayment
-                        }));
-                        showNotification('✅ Заказ отправлен!');
-                        setTimeout(() => tg.close(), 1000);
-                    } else {
-                        alert('Заказ оформлен!');
-                    }
-                });
-                
-                document.getElementById('clearBtn').addEventListener('click', function() {
-                    cart = [];
-                    selectedPayment = null;
-                    document.getElementById('cartBadge').style.display = 'none';
-                    showCart();
-                });
-            }
-            
-            // Уведомления
-            function showNotification(msg) {
-                const notif = document.getElementById('notification');
-                notif.textContent = msg;
-                notif.classList.add('show');
-                setTimeout(() => notif.classList.remove('show'), 1500);
-            }
-        })();
-    </script>
-</body>
-</html>
+            document.getElementById('menuNavBtn
                    
                    
