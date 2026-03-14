@@ -869,6 +869,142 @@
             });
             
             // Навигация
-            document.getElementById('menuNavBtn
-                   
+            document.getElementById('menuNavBtn').addEventListener('click', function() {
+                document.getElementById('menuNavBtn').classList.add('active');
+                document.getElementById('cartNavBtn').classList.remove('active');
+                document.getElementById('main').style.display = 'block';
+                document.getElementById('cartSection').style.display = 'none';
+                document.querySelector('.categories').style.display = 'flex';
+                
+                // Возвращаем фон текущей категории
+                changeBackground(currentCategory);
+            });
+            
+            document.getElementById('cartNavBtn').addEventListener('click', function() {
+                document.getElementById('menuNavBtn').classList.remove('active');
+                document.getElementById('cartNavBtn').classList.add('active');
+                document.querySelector('.categories').style.display = 'none';
+                document.getElementById('main').style.display = 'none';
+                document.getElementById('cartSection').style.display = 'block';
+                document.body.className = ''; // Убираем фон в корзине
+                showCart();
+            });
+            
+            // Показать корзину
+            function showCart() {
+                if (cart.length === 0) {
+                    document.getElementById('cartSection').innerHTML = `
+                        <h2 style="color:#8B4513; text-align:center; margin-top:50px;">🛒 Корзина пуста</h2>
+                        <button class="order-btn" onclick="document.getElementById('menuNavBtn').click()" 
+                                style="margin-top:20px; background:#8B4513;">
+                            🍣 В меню
+                        </button>
+                    `;
+                    return;
+                }
+                
+                let total = 0;
+                let itemsHtml = '';
+                
+                for (let i = 0; i < cart.length; i++) {
+                    const item = cart[i];
+                    total += item.price;
+                    itemsHtml += `
+                        <div class="cart-item">
+                            <div class="cart-item-info">
+                                <div class="cart-item-name">${item.name}</div>
+                                <div class="cart-item-price">${item.price}₽</div>
+                            </div>
+                            <button class="cart-item-remove" data-index="${i}">✕</button>
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('cartSection').innerHTML = `
+                    <h2 style="color:#8B4513; margin-bottom:15px;">🛒 Корзина</h2>
+                    <div class="cart-items">${itemsHtml}</div>
+                    <div class="cart-total">Итого: ${total}₽</div>
+                    
+                    <div class="payment-methods">
+                        <h3>💳 Способ оплаты:</h3>
+                        <div class="payment-buttons">
+                            <button class="payment-btn" id="onlinePay">💳 Онлайн</button>
+                            <button class="payment-btn" id="cashPay">💵 Наличными</button>
+                        </div>
+                    </div>
+                    
+                    <div class="cart-actions">
+                        <button class="order-btn" id="orderBtn" disabled>✅ Оформить заказ</button>
+                        <button class="clear-btn" id="clearBtn">🗑️ Очистить</button>
+                    </div>
+                `;
+                
+                // Обработчики
+                document.getElementById('onlinePay').addEventListener('click', function() {
+                    selectedPayment = 'online';
+                    document.getElementById('onlinePay').classList.add('active');
+                    document.getElementById('cashPay').classList.remove('active');
+                    document.getElementById('orderBtn').disabled = false;
+                });
+                
+                document.getElementById('cashPay').addEventListener('click', function() {
+                    selectedPayment = 'cash';
+                    document.getElementById('onlinePay').classList.remove('active');
+                    document.getElementById('cashPay').classList.add('active');
+                    document.getElementById('orderBtn').disabled = false;
+                });
+                
+                document.getElementById('orderBtn').addEventListener('click', function() {
+                    if (!selectedPayment) {
+                        showNotification('❌ Выберите способ оплаты');
+                        return;
+                    }
+                    
+                    if (tg) {
+                        tg.sendData(JSON.stringify({
+                            action: 'create_order',
+                            items: cart,
+                            total: total,
+                            payment_method: selectedPayment
+                        }));
+                        showNotification('✅ Заказ отправлен!');
+                        setTimeout(() => tg.close(), 1000);
+                    } else {
+                        alert('Заказ оформлен!\n\nСумма: ' + total + '₽\nСпособ: ' + selectedPayment);
+                    }
+                });
+                
+                document.getElementById('clearBtn').addEventListener('click', function() {
+                    cart = [];
+                    selectedPayment = null;
+                    document.getElementById('cartBadge').style.display = 'none';
+                    showCart();
+                });
+                
+                // Удаление товара из корзины
+                document.querySelectorAll('.cart-item-remove').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.dataset.index);
+                        cart.splice(index, 1);
+                        if (cart.length === 0) {
+                            document.getElementById('cartBadge').style.display = 'none';
+                        } else {
+                            document.getElementById('cartBadge').textContent = cart.length;
+                        }
+                        showCart();
+                    });
+                });
+            }
+            
+            // Уведомления
+            function showNotification(msg) {
+                const notif = document.getElementById('notification');
+                notif.textContent = msg;
+                notif.classList.add('show');
+                setTimeout(() => notif.classList.remove('show'), 1500);
+            }
+        })();
+    </script>
+</body>
+</html>
                    
