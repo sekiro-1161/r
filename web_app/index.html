@@ -3,586 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍣 Суши-Бургер</title>
+    <title>Суши-Бургер</title>
     
-    <!-- Telegram Web App SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Telegram Web App SDK - загружается асинхронно -->
+    <script src="https://telegram.org/js/telegram-web-app.js" async></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #2c3e50, #3498db);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
-        }
-
+        /* Базовые стили - минимум для быстрого старта */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        body { background: #f8f9fa; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
+        
         .app {
-            max-width: 450px;
-            width: 100%;
-            height: 95vh;
-            background: #f8f9fa;
-            border-radius: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-            position: relative;
-            display: flex;
-            flex-direction: column;
+            max-width: 450px; width: 100%; height: 95vh; background: #f8f9fa;
+            border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden; display: flex; flex-direction: column;
         }
-
-        /* Шапка */
+        
+        /* Шапка - минимальная */
         .header {
             background: linear-gradient(135deg, #e74c3c, #c0392b);
-            padding: 15px;
-            color: white;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            padding: 15px; color: white; text-align: center;
         }
-
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 5px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .header .subtitle {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        /* Категории меню */
+        
+        .header h1 { font-size: 24px; margin-bottom: 5px; }
+        
+        /* Категории - скролл */
         .categories {
-            display: flex;
-            overflow-x: auto;
-            padding: 15px;
-            gap: 10px;
-            background: white;
-            border-bottom: 1px solid #eee;
-            white-space: nowrap;
+            display: flex; overflow-x: auto; padding: 15px; gap: 10px;
+            background: white; border-bottom: 1px solid #eee;
             scrollbar-width: thin;
         }
-
+        
         .category-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 25px;
-            background: #f1f2f6;
-            color: #2d3436;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            flex-shrink: 0;
+            padding: 10px 20px; border: none; border-radius: 25px;
+            background: #f1f2f6; font-weight: 600; cursor: pointer;
+            flex-shrink: 0; transition: 0.2s;
         }
-
+        
         .category-btn.active {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: white;
-            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+            background: #e74c3c; color: white;
         }
-
-        .category-btn i {
-            margin-right: 5px;
-        }
-
-        /* Основной контент */
-        .main {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            background: #f8f9fa;
-        }
-
-        /* Секции меню */
-        .menu-section {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .menu-section.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h2 {
-            color: #2d3436;
-            margin: 20px 0 15px;
-            font-size: 20px;
-            position: relative;
-            padding-left: 10px;
-            display: flex;
-            align-items: center;
-        }
-
-        h2::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            border-radius: 2px;
-        }
-
-        h2 i {
-            margin-right: 8px;
-            font-size: 24px;
-        }
-
+        
+        /* Контент */
+        .main { flex: 1; overflow-y: auto; padding: 15px; }
+        
         /* Сетка товаров */
         .items-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px; margin-bottom: 20px;
         }
-
-        /* Карточка товара */
+        
+        /* Карточка товара - легкая */
         .item-card {
-            background: white;
-            border-radius: 20px;
-            padding: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            background: white; border-radius: 16px; padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex; flex-direction: column;
         }
-
-        .item-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .item-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #e74c3c, #f39c12);
-        }
-
-        .item-emoji {
-            font-size: 40px;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .item-name {
-            font-weight: 700;
-            color: #2d3436;
-            margin-bottom: 5px;
-            font-size: 16px;
-        }
-
-        .item-description {
-            font-size: 12px;
-            color: #636e72;
-            margin-bottom: 10px;
-            line-height: 1.4;
-            flex: 1;
-        }
-
-        .item-price {
-            font-weight: 700;
-            color: #e74c3c;
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-
-        .item-price small {
-            font-size: 12px;
-            color: #95a5a6;
-            font-weight: normal;
-        }
-
+        
+        .item-name { font-weight: 700; color: #2d3436; font-size: 15px; margin-bottom: 4px; }
+        .item-description { font-size: 11px; color: #7f8c8d; margin-bottom: 8px; }
+        .item-price { font-weight: 700; color: #e74c3c; font-size: 18px; margin-bottom: 8px; }
+        
         .add-to-cart {
-            width: 100%;
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, opacity 0.2s;
-            margin-top: 5px;
+            background: #27ae60; color: white; border: none;
+            padding: 8px; border-radius: 20px; font-weight: 600;
+            cursor: pointer; transition: 0.2s;
         }
-
-        .add-to-cart:hover {
-            transform: scale(1.02);
-            opacity: 0.9;
-        }
-
-        .add-to-cart:active {
-            transform: scale(0.98);
-        }
-
-        /* Специальное оформление для роллов */
-        .roll-price {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-            color: #7f8c8d;
-            margin-top: 5px;
-            padding-top: 5px;
-            border-top: 1px dashed #ecf0f1;
-        }
-
+        
         /* Корзина */
-        .cart-section {
-            padding: 15px;
-        }
-
-        .cart-items {
-            margin-bottom: 20px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .cart-item {
-            background: white;
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .cart-item-info {
-            flex: 1;
-        }
-
-        .cart-item-name {
-            font-weight: 600;
-            color: #2d3436;
-        }
-
-        .cart-item-price {
-            color: #e74c3c;
-            font-weight: 600;
-        }
-
-        .cart-item-remove {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s;
-        }
-
-        .cart-item-remove:hover {
-            transform: scale(1.1);
-        }
-
+        .cart-section { padding: 15px; }
         .cart-total {
-            background: linear-gradient(135deg, #2c3e50, #34495e);
-            color: white;
-            padding: 15px;
-            border-radius: 15px;
-            text-align: center;
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 20px;
+            background: #2c3e50; color: white; padding: 15px;
+            border-radius: 12px; text-align: center; font-size: 18px;
+            margin-bottom: 15px;
         }
-
-        /* Способы оплаты */
-        .payment-methods {
-            margin-bottom: 20px;
-        }
-
-        .payment-methods h3 {
-            color: #2d3436;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-
-        .payment-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
+        
         .payment-btn {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #dfe6e9;
-            border-radius: 15px;
-            background: white;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
+            flex: 1; padding: 12px; border: 2px solid #ecf0f1;
+            border-radius: 12px; background: white; cursor: pointer;
         }
-
+        
         .payment-btn.active {
-            border-color: #e74c3c;
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: white;
+            background: #e74c3c; color: white; border-color: #e74c3c;
         }
-
-        /* Кнопки действий */
-        .cart-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .order-btn, .clear-btn {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
+        
         .order-btn {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            color: white;
+            background: #27ae60; color: white; border: none;
+            padding: 15px; border-radius: 12px; font-weight: 600;
+            cursor: pointer; width: 100%;
         }
-
-        .order-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .clear-btn {
-            background: #ecf0f1;
-            color: #2c3e50;
-        }
-
+        
+        .order-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
         /* Нижняя навигация */
         .bottom-nav {
-            background: white;
-            display: flex;
-            padding: 10px;
-            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+            background: white; display: flex; padding: 10px;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
         }
-
+        
         .nav-btn {
-            flex: 1;
-            background: none;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            color: #b2bec3;
-            transition: color 0.2s;
-            position: relative;
+            flex: 1; background: none; border: none; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center;
+            color: #b2bec3; transition: 0.2s;
         }
-
-        .nav-btn.active {
-            color: #e74c3c;
-        }
-
-        .nav-icon {
-            font-size: 24px;
-        }
-
-        .nav-text {
-            font-size: 12px;
-        }
-
+        
+        .nav-btn.active { color: #e74c3c; }
+        .nav-icon { font-size: 24px; }
+        .nav-text { font-size: 11px; }
         .cart-badge {
-            position: absolute;
-            top: 0;
-            right: 20px;
-            background: #e74c3c;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: absolute; background: #e74c3c; color: white;
+            border-radius: 50%; width: 18px; height: 18px;
+            font-size: 10px; display: flex; align-items: center; justify-content: center;
         }
-
+        
         /* Уведомления */
         .notification {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #2c3e50, #34495e);
-            color: white;
-            padding: 12px 25px;
-            border-radius: 50px;
+            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+            background: #2c3e50; color: white; padding: 10px 20px;
+            border-radius: 50px; display: none; z-index: 1000;
+        }
+        
+        .notification.show { display: block; }
+        
+        /* Индикатор загрузки */
+        .loading {
+            text-align: center; padding: 30px; color: #7f8c8d;
             font-size: 14px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            display: none;
-            animation: slideUp 0.3s ease;
-            z-index: 1000;
         }
-
-        .notification.show {
-            display: block;
-        }
-
-        @keyframes slideUp {
-            from {
-                bottom: 50px;
-                opacity: 0;
-            }
-            to {
-                bottom: 100px;
-                opacity: 1;
-            }
-        }
-
-        /* Специальные обозначения */
-        .hot-badge {
-            background: #e74c3c;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-
-        .combo-badge {
-            background: #f39c12;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-
+        
         @media (max-width: 480px) {
-            .app {
-                height: 100vh;
-                border-radius: 0;
-            }
-            
-            .items-grid {
-                grid-template-columns: 1fr;
-            }
+            .app { height: 100vh; border-radius: 0; }
+            .items-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="app">
-        <!-- Шапка -->
         <header class="header">
-            <div class="header-content">
-                <h1>🍣 Суши-Бургер</h1>
-                <p class="subtitle" id="welcomeMessage">Загрузка...</p>
-            </div>
+            <h1>🍣 Суши-Бургер</h1>
+            <div id="welcomeMessage" style="font-size: 13px;">Загрузка...</div>
         </header>
 
-        <!-- Категории меню -->
+        <!-- Категории -->
         <div class="categories" id="categories">
-            <button class="category-btn active" data-category="rolls">
-                <i>🍣</i> Роллы
-            </button>
-            <button class="category-btn" data-category="pizza">
-                <i>🍕</i> Пицца
-            </button>
-            <button class="category-btn" data-category="snacks">
-                <i>🍟</i> Закуски
-            </button>
-            <button class="category-btn" data-category="drinks">
-                <i>🥤</i> Напитки
-            </button>
-            <button class="category-btn" data-category="combo">
-                <i>🍱</i> Комбо
-            </button>
+            <button class="category-btn active" data-cat="rolls">🍣 Роллы</button>
+            <button class="category-btn" data-cat="pizza">🍕 Пицца</button>
+            <button class="category-btn" data-cat="snacks">🍟 Закуски</button>
+            <button class="category-btn" data-cat="drinks">🥤 Напитки</button>
+            <button class="category-btn" data-cat="combo">🍱 Комбо</button>
         </div>
 
-        <!-- Основной контент -->
-        <main class="main">
-            <!-- Секция роллов -->
-            <section class="menu-section active" id="rollsSection">
-                <h2><i>🍣</i> Роллы</h2>
-                <div class="items-grid" id="rollsGrid"></div>
-            </section>
-
-            <!-- Секция пиццы -->
-            <section class="menu-section" id="pizzaSection">
-                <h2><i>🍕</i> Пицца</h2>
-                <div class="items-grid" id="pizzaGrid"></div>
-            </section>
-
-            <!-- Секция закусок -->
-            <section class="menu-section" id="snacksSection">
-                <h2><i>🍟</i> Закуски</h2>
-                <div class="items-grid" id="snacksGrid"></div>
-            </section>
-
-            <!-- Секция напитков -->
-            <section class="menu-section" id="drinksSection">
-                <h2><i>🥤</i> Напитки</h2>
-                <div class="items-grid" id="drinksGrid"></div>
-            </section>
-
-            <!-- Секция комбо -->
-            <section class="menu-section" id="comboSection">
-                <h2><i>🍱</i> Комбо</h2>
-                <div class="items-grid" id="comboGrid"></div>
-            </section>
-
-            <!-- Секция корзины -->
-            <section class="cart-section" id="cartSection" style="display: none;">
-                <h2>🛒 Ваша корзина</h2>
-                <div class="cart-items" id="cartItems"></div>
-                <div class="cart-total" id="cartTotal">Итого: 0₽</div>
-                
-                <div class="payment-methods">
-                    <h3>💳 Способ оплаты:</h3>
-                    <div class="payment-buttons">
-                        <button class="payment-btn" id="onlinePaymentBtn">
-                            💳 Онлайн
-                        </button>
-                        <button class="payment-btn" id="cashPaymentBtn">
-                            💵 Наличными
-                        </button>
-                    </div>
-                </div>
-
-                <div class="cart-actions">
-                    <button class="order-btn" id="orderBtn" disabled>
-                        ✅ Оформить заказ
-                    </button>
-                    <button class="clear-btn" id="clearCartBtn">
-                        🗑️ Очистить
-                    </button>
-                </div>
-            </section>
+        <main class="main" id="main">
+            <!-- Здесь будет динамически подгружаться меню -->
+            <div class="loading" id="loadingIndicator">⏳ Загрузка меню...</div>
         </main>
+
+        <!-- Корзина (скрыта) -->
+        <div class="cart-section" id="cartSection" style="display: none;"></div>
 
         <!-- Нижняя навигация -->
         <nav class="bottom-nav">
@@ -598,275 +175,233 @@
         </nav>
     </div>
 
-    <!-- Уведомления -->
     <div class="notification" id="notification"></div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('✅ DOM загружен');
-            initApp();
-        });
-
-        function initApp() {
-            // Инициализация Telegram
-            let tg = null;
-            let user = null;
+        // Оптимизированный JavaScript
+        (function() {
+            console.log('🚀 Mini App запускается...');
             
-            if (window.Telegram && window.Telegram.WebApp) {
-                tg = window.Telegram.WebApp;
+            // Telegram Web App
+            let tg = window.Telegram?.WebApp;
+            if (tg) {
                 tg.ready();
                 tg.expand();
-                
-                user = tg.initDataUnsafe?.user;
-                document.getElementById('welcomeMessage').textContent = 
-                    user ? `👋 Привет, ${user.first_name}!` : 'Добро пожаловать!';
+                document.getElementById('welcomeMessage').innerText = 
+                    tg.initDataUnsafe?.user ? `👋 Привет, ${tg.initDataUnsafe.user.first_name}!` : 'Добро пожаловать!';
             } else {
-                document.getElementById('welcomeMessage').textContent = 'Демо-режим';
+                document.getElementById('welcomeMessage').innerText = 'Демо-режим';
             }
-
-            // === МЕНЮ НА ОСНОВЕ ФОТОГРАФИЙ ===
             
-            // Роллы (из фото 1 и 6)
-            const ROLLS = [
-                // Основные роллы (фото 1)
-                { id: 'philadelphia', name: 'ФИЛАДЕЛЬФИЯ', description: 'Рис, норн, сыр, лосось', price: 38 },
-                { id: 'bekono-maki', name: 'БЕКОНО МАКИ', description: 'Рис, норн, огурец, сыр, бекон', price: 38 },
-                { id: 'syake-maki', name: 'СЯКЕ МАКИ', description: 'Рис, лосось, норн', price: 20 },
-                { id: 'kappa-maki', name: 'КАППА МАКИ', description: 'Рис, огурец, норн', price: 20 },
-                { id: 'voskhodyaschee', name: 'ВОСХОДЯЩЕЕ СОЛНЦЕ', description: 'Рис, норн, креветка, икра, сыр', price: 38 },
-                { id: 'philadelphia-light', name: 'ФИЛАДЕЛЬФИЯ ЛАЙТ', description: 'Рис, норн, сыр, лосось, огурец', price: 38 },
-                { id: 'bonito', name: 'БОНИТО', description: 'Рис, норн, сыр, лосось, стружка тунца', price: 38 },
-                { id: 'tokyo', name: 'ТОКИО', description: 'Рис, лосось, сыр, кунжут', price: 38 },
-                { id: 'california-ryba', name: 'КАЛИФОРНИЯ РЫБА', description: 'Рис, норн, сыр, лосось, икра тобико', price: 38 },
-                { id: 'california-crevetka', name: 'КАЛИФОРНИЯ КРЕВЕТКА', description: 'Рис, норн, сыр, лосось, икра тобико', price: 38 },
-                
-                // Дополнительные роллы (фото 6)
-                { id: 'green-roll', name: 'ГРИН РОЛЛ', description: 'Рис, норн, сыр, лосось, огурец', price: 38 },
-                { id: 'tanay', name: 'ТАНАЙ', description: 'Рис, норн, копчёная курица, огурец, сыр, творожная шапка, соус унаги', price: 45 },
-                { id: 'lava-ryba', name: 'ЛАВА РЫБА', description: 'Рис, норн, лосось, сырная шапочка', price: 38 },
-                { id: 'lava-crevetka', name: 'ЛАВА КРЕВЕТКА', description: 'Рис, норн, креветка, сырная шапочка', price: 38 },
-                { id: 'geysha', name: 'ГЕЙША', description: 'Рис, норн, рыба, огурец, сыр', price: 38 },
-                { id: 'zharennye', name: 'ЖАРЕННЫЕ', description: 'Рис, норн, сыр', price: 40 },
-                { id: 'ebi-maki', name: 'ЭБИ МАКИ', description: 'Жаренный рол с креветкой, шапка творожная', price: 45 },
-                { id: 'zapechyonnye', name: 'ЗАПЕЧЁННЫЕ', description: 'Рис, норн, сыр', price: 40 },
-                { id: 'kitomaki', name: 'КИТОМАКИ', description: 'Рис, норн, креветка, огурец, кунжут, соус манго-чили, лосось', price: 45 }
-            ];
-
-            // Пицца (фото 3 и 7)
-            const PIZZA = [
-                // Из фото 3
-                { id: 'margarita', name: 'МАРГАРИТА', description: 'Томатный соус, помидоры, сыр моцарелла', price: 350 },
-                { id: 'peperoni', name: 'ПЕПЕРОНИ', description: 'Томатный соус, пеперони, сыр моцарелла', price: 350 },
-                { id: 'vetchina-griby', name: 'ВЕТЧИНА ГРИБЫ', description: 'Соус сливочно-чесночный, ветчина, грибы, сыр моцарелла', price: 350 },
-                { id: 'myasnaya', name: 'МЯСНАЯ', description: 'Томатный соус, ветчина, пеперони, бекон, сыр моцарелла', price: 450 },
-                { id: '4-syra', name: '4 СЫРА', description: 'Соус песто, сыр чеддер, моцарелла, дор-блю, брю', price: 400 },
-                { id: 's-ananasami', name: 'С АНАНАСАМИ', description: 'Томатный соус, ветчина, ананасы, сыр моцарелла', price: 380 },
-                { id: 'assorti', name: 'АССОРТИ', description: 'На выбор', price: 400 },
-                
-                // Из фото 7
-                { id: 'kachatora', name: 'КАЧЧАТОРА', description: 'Соус барбекю, охотничьи колбаски, помидоры, сыр моцарелла', price: 380 },
-                { id: 'vegetarianskaya', name: 'ВЕГЕТАРИАНСКАЯ', description: 'Томатный соус, помидоры, шампейоны, болгарский перец, сыр моцарелла', price: 350 },
-                { id: 'neapolitano', name: 'НЕАПОЛИТАНО', description: 'Соус барбекю, курица копченая, корнишоны, сыр моцарелла', price: 380 },
-                { id: 'zhylien', name: 'ЖЮЛЬЕН', description: 'Соус гриль, курица, грибы, сыр моцарелла', price: 430 },
-                { id: 'morskaya', name: 'МОРСКАЯ', description: 'Томатный соус, рыба, сыр моцарелла, креветка', price: 550 },
-                { id: 'chesnochnaya-lepyoshka', name: 'ЧЕСНОЧНАЯ ЛЕПЁШКА', description: 'Чесночная лепёшка', price: 250 }
-            ];
-
-            // Закуски (фото 4 и 5)
-            const SNACKS = [
-                // Из фото 4
-                { id: 'lukovye-koltsa', name: 'ЛУКОВЫЕ КОЛЬЦА', description: 'Луковые кольца', price: 150 },
-                { id: 'krylya-ostrye', name: 'КРЫЛЬЯ ОСТРЫЕ', description: 'Острые крылья', price: 250 },
-                { id: 'syrnye-palochki', name: 'СЫРНЫЕ ПАЛОЧКИ', description: 'Сырные палочки', price: 210 },
-                { id: 'tom-yam', name: 'СУП ТОМ-ЯМ', description: 'С морепродуктами', price: 320 },
-                { id: 'bok-kurila', name: 'БОК КУРИЛА', description: 'Рис/панна', price: 300 },
-                { id: 'bok-svinina', name: 'БОК СВИНИНА', description: 'Рис/панна', price: 300 },
-                
-                // Из фото 5
-                { id: 'fries', name: 'ФРИ', description: 'Картофель фри + кетчуп', price: 100 },
-                { id: 'potato', name: 'КАРТОФЕЛЬ ПО-ДЕРЕВЕНСКИ', description: 'Картофельные дольки + кетчуп', price: 120 },
-                { id: 'burger', name: 'БУРГЕР', description: 'Булка, котлета или наггетсы, салат, помидор, бекон, соус', price: 150 },
-                { id: 'naggetsy', name: 'НАГГЕТСЫ', description: 'Наггетсы', price: 150 }
-            ];
-
-            // Напитки (фото 2)
-            const DRINKS = [
-                { id: 'water', name: 'ВОДА 0.5', description: 'Вода', price: 50 },
-                { id: 'mors', name: 'МОРС', description: 'В ассортименте 0.33', price: 50 },
-                { id: 'cola', name: 'КОЛА 0.5', description: 'Кола', price: 100 },
-                { id: 'lemonade', name: 'ЛИМОНАД 1Л', description: 'В ассортименте', price: 150 },
-                { id: 'milkshake-vanilla', name: 'МОЛОЧНЫЙ КОКТЕЙЛЬ', description: 'Ванильный 0.33', price: 150 },
-                { id: 'milkshake-strawberry', name: 'МОЛОЧНЫЙ КОКТЕЙЛЬ', description: 'Клубничный 0.33', price: 150 },
-                { id: 'milkshake-chocolate', name: 'МОЛОЧНЫЙ КОКТЕЙЛЬ', description: 'Шоколадный 0.33', price: 150 }
-            ];
-
-            // Комбо (из фото 5)
-            const COMBO = [
-                { id: 'combo', name: 'КОМБО', description: 'Нагетсы + фри, соус', price: 150 }
-            ];
-
-            // Состояние корзины
+            // Меню (только названия и цены - ничего лишнего)
+            const MENU = {
+                rolls: [
+                    { id: 'philadelphia', name: 'ФИЛАДЕЛЬФИЯ', desc: 'Рис, норн, сыр, лосось', price: 38 },
+                    { id: 'bekono', name: 'БЕКОНО МАКИ', desc: 'Рис, норн, огурец, сыр, бекон', price: 38 },
+                    { id: 'syake', name: 'СЯКЕ МАКИ', desc: 'Рис, лосось, норн', price: 20 },
+                    { id: 'kappa', name: 'КАППА МАКИ', desc: 'Рис, огурец, норн', price: 20 },
+                    { id: 'voskhod', name: 'ВОСХОДЯЩЕЕ СОЛНЦЕ', desc: 'Рис, норн, креветка, икра, сыр', price: 38 }
+                ],
+                pizza: [
+                    { id: 'margarita', name: 'МАРГАРИТА', desc: 'Томатный соус, помидоры, сыр', price: 350 },
+                    { id: 'peperoni', name: 'ПЕПЕРОНИ', desc: 'Томатный соус, пеперони, сыр', price: 350 },
+                    { id: 'myasnaya', name: 'МЯСНАЯ', desc: 'Ветчина, пеперони, бекон, сыр', price: 450 }
+                ],
+                snacks: [
+                    { id: 'fries', name: 'ФРИ', desc: 'Картофель фри + кетчуп', price: 100 },
+                    { id: 'naggets', name: 'НАГГЕТСЫ', desc: 'Куриные наггетсы', price: 150 },
+                    { id: 'burger', name: 'БУРГЕР', desc: 'С наггетсами или котлетой', price: 150 }
+                ],
+                drinks: [
+                    { id: 'water', name: 'ВОДА 0.5', desc: 'Питьевая вода', price: 50 },
+                    { id: 'cola', name: 'КОЛА 0.5', desc: 'Кола', price: 100 }
+                ],
+                combo: [
+                    { id: 'combo', name: 'КОМБО', desc: 'Нагетсы + фри + соус', price: 150 }
+                ]
+            };
+            
+            // Состояние
             let cart = [];
+            let currentCategory = 'rolls';
             let selectedPayment = null;
-
-            // Рендерим все категории
-            renderItems('rollsGrid', ROLLS, '🍣');
-            renderItems('pizzaGrid', PIZZA, '🍕');
-            renderItems('snacksGrid', SNACKS, getSnackEmoji);
-            renderItems('drinksGrid', DRINKS, getDrinkEmoji);
-            renderItems('comboGrid', COMBO, '🍱');
-
-            // Функция для получения эмодзи закусок
-            function getSnackEmoji(item) {
-                if (item.id.includes('luk')) return '🧅';
-                if (item.id.includes('kryl')) return '🍗';
-                if (item.id.includes('syr')) return '🧀';
-                if (item.id.includes('tom')) return '🍜';
-                if (item.id.includes('bok')) return '🍚';
-                if (item.id.includes('fries')) return '🍟';
-                if (item.id.includes('potato')) return '🥔';
-                if (item.id.includes('burger')) return '🍔';
-                if (item.id.includes('nag')) return '🐔';
-                return '🍽️';
-            }
-
-            // Функция для получения эмодзи напитков
-            function getDrinkEmoji(item) {
-                if (item.id.includes('water')) return '💧';
-                if (item.id.includes('mors')) return '🧃';
-                if (item.id.includes('cola')) return '🥤';
-                if (item.id.includes('lemonade')) return '🧋';
-                if (item.id.includes('milkshake')) return '🥛';
-                return '🥤';
-            }
-
-            // Рендеринг товаров
-            function renderItems(gridId, items, emojiResolver) {
-                const grid = document.getElementById(gridId);
-                if (!grid) return;
+            
+            // Быстрый рендер категории
+            function renderCategory(category) {
+                const items = MENU[category] || [];
+                const main = document.getElementById('main');
+                const loading = document.getElementById('loadingIndicator');
                 
-                let html = '';
-                items.forEach(item => {
-                    const emoji = typeof emojiResolver === 'function' ? emojiResolver(item) : emojiResolver;
+                if (loading) loading.style.display = 'none';
+                
+                let html = `<h2 style="margin:0 0 15px 0;">${
+                    category === 'rolls' ? '🍣 Роллы' :
+                    category === 'pizza' ? '🍕 Пицца' :
+                    category === 'snacks' ? '🍟 Закуски' :
+                    category === 'drinks' ? '🥤 Напитки' : '🍱 Комбо'
+                }</h2>`;
+                
+                html += '<div class="items-grid">';
+                
+                for (let item of items) {
                     html += `
-                        <div class="item-card" data-id="${item.id}">
-                            <div class="item-emoji">${emoji}</div>
+                        <div class="item-card">
                             <div class="item-name">${item.name}</div>
-                            <div class="item-description">${item.description}</div>
+                            <div class="item-description">${item.desc}</div>
                             <div class="item-price">${item.price}₽</div>
                             <button class="add-to-cart" 
                                 data-id="${item.id}"
                                 data-name="${item.name}"
-                                data-price="${item.price}"
-                                data-description="${item.description}">
+                                data-price="${item.price}">
                                 🛒 В корзину
                             </button>
                         </div>
                     `;
-                });
-                grid.innerHTML = html;
+                }
+                
+                html += '</div>';
+                main.innerHTML = html;
             }
-
+            
+            // Показать первую категорию сразу
+            renderCategory('rolls');
+            
             // Переключение категорий
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
-                    
-                    document.querySelectorAll('.menu-section').forEach(s => s.classList.remove('active'));
-                    const category = this.dataset.category;
-                    document.getElementById(`${category}Section`).classList.add('active');
+                    renderCategory(this.dataset.cat);
                 });
             });
-
-            // Добавление в корзину (делегирование)
+            
+            // Добавление в корзину
             document.addEventListener('click', function(e) {
-                const addBtn = e.target.closest('.add-to-cart');
-                if (addBtn) {
-                    e.preventDefault();
+                if (e.target.classList.contains('add-to-cart')) {
                     const item = {
-                        id: addBtn.dataset.id,
-                        name: addBtn.dataset.name,
-                        price: parseInt(addBtn.dataset.price),
-                        description: addBtn.dataset.description
+                        id: e.target.dataset.id,
+                        name: e.target.dataset.name,
+                        price: parseInt(e.target.dataset.price)
                     };
                     cart.push(item);
-                    updateCart();
-                    showNotification(`✅ ${item.name} добавлен`);
                     
+                    const badge = document.getElementById('cartBadge');
+                    badge.style.display = 'flex';
+                    badge.textContent = cart.length;
+                    
+                    showNotification(`✅ ${item.name} добавлен`);
                     if (tg) tg.HapticFeedback?.impactOccurred('light');
                 }
             });
-
+            
             // Навигация
             document.getElementById('menuNavBtn').addEventListener('click', function() {
                 document.getElementById('menuNavBtn').classList.add('active');
                 document.getElementById('cartNavBtn').classList.remove('active');
-                document.querySelector('.main').style.display = 'block';
+                document.getElementById('main').style.display = 'block';
                 document.getElementById('cartSection').style.display = 'none';
                 document.querySelector('.categories').style.display = 'flex';
             });
-
+            
             document.getElementById('cartNavBtn').addEventListener('click', function() {
                 document.getElementById('menuNavBtn').classList.remove('active');
                 document.getElementById('cartNavBtn').classList.add('active');
-                document.querySelector('.main').style.display = 'none';
-                document.getElementById('cartSection').style.display = 'block';
                 document.querySelector('.categories').style.display = 'none';
-                updateCart();
+                document.getElementById('main').style.display = 'none';
+                document.getElementById('cartSection').style.display = 'block';
+                showCart();
             });
-
-            // Способы оплаты
-            document.getElementById('onlinePaymentBtn').addEventListener('click', function() {
-                selectedPayment = 'online';
-                document.getElementById('onlinePaymentBtn').classList.add('active');
-                document.getElementById('cashPaymentBtn').classList.remove('active');
-                document.getElementById('orderBtn').disabled = false;
-            });
-
-            document.getElementById('cashPaymentBtn').addEventListener('click', function() {
-                selectedPayment = 'cash';
-                document.getElementById('onlinePaymentBtn').classList.remove('active');
-                document.getElementById('cashPaymentBtn').classList.add('active');
-                document.getElementById('orderBtn').disabled = false;
-            });
-
-            // Очистка корзины
-            document.getElementById('clearCartBtn').addEventListener('click', function() {
-                cart = [];
-                selectedPayment = null;
-                document.getElementById('onlinePaymentBtn').classList.remove('active');
-                document.getElementById('cashPaymentBtn').classList.remove('active');
-                document.getElementById('orderBtn').disabled = true;
-                updateCart();
-                showNotification('🗑️ Корзина очищена');
-            });
-
-            // Оформление заказа
-            document.getElementById('orderBtn').addEventListener('click', function() {
+            
+            // Показать корзину
+            function showCart() {
                 if (cart.length === 0) {
-                    showNotification('❌ Корзина пуста');
+                    document.getElementById('cartSection').innerHTML = `
+                        <h2>🛒 Корзина пуста</h2>
+                        <button class="order-btn" onclick="document.getElementById('menuNavBtn').click()">
+                            🍣 В меню
+                        </button>
+                    `;
                     return;
                 }
                 
-                if (!selectedPayment) {
-                    showNotification('❌ Выберите способ оплаты');
-                    return;
+                let total = 0;
+                let itemsHtml = '';
+                
+                for (let item of cart) {
+                    total += item.price;
+                    itemsHtml += `
+                        <div style="background:white; padding:12px; border-radius:12px; margin-bottom:8px;">
+                            <div style="font-weight:600;">${item.name}</div>
+                            <div style="color:#e74c3c;">${item.price}₽</div>
+                        </div>
+                    `;
                 }
                 
-                const total = cart.reduce((sum, item) => sum + item.price, 0);
-                const orderData = {
-                    action: 'create_order',
-                    items: cart,
-                    total: total,
-                    payment_method: selectedPayment
-                };
+                document.getElementById('cartSection').innerHTML = `
+                    <h2>🛒 Корзина</h2>
+                    <div style="margin-bottom:20px;">${itemsHtml}</div>
+                    <div class="cart-total">Итого: ${total}₽</div>
+                    
+                    <div style="margin-bottom:20px;">
+                        <h3>💳 Оплата:</h3>
+                        <div style="display:flex; gap:10px;">
+                            <button class="payment-btn" id="onlinePay">💳 Онлайн</button>
+                            <button class="payment-btn" id="cashPay">💵 Наличными</button>
+                        </div>
+                    </div>
+                    
+                    <button class="order-btn" id="orderBtn" disabled>✅ Оформить</button>
+                    <button class="order-btn" id="clearBtn" style="background:#95a5a6; margin-top:10px;">🗑️ Очистить</button>
+                `;
                 
-                if (tg) {
-                    tg.sendData(JSON.stringify(orderData));
-                    tg.HapticFeedback?.notificationOccurred('success');
-                    showNotification('✅ Заказ отправлен!');
-                    setTimeout(() => tg.close(), 1000);
-                } else {
+                // Обработчики
+                document.getElementById('onlinePay').addEventListener('click', function() {
+                    selectedPayment = 'online';
+                    document.getElementById('onlinePay').classList.add('active');
+                    document.getElementById('cashPay').classList.remove('active');
+                    document.getElementById('orderBtn').disabled = false;
+                });
+                
+                document.getElementById('cashPay').addEventListener('click', function() {
+                    selectedPayment = 'cash';
+                    document.getElementById('onlinePay').classList.remove('active');
+                    document.getElementById('cashPay').classList.add('active');
+                    document.getElementById('orderBtn').disabled = false;
+                });
+                
+                document.getElementById('orderBtn').addEventListener('click', function() {
+                    if (tg) {
+                        tg.sendData(JSON.stringify({
+                            action: 'create_order',
+                            items: cart,
+                            total: total,
+                            payment_method: selectedPayment
+                        }));
+                        showNotification('✅ Заказ отправлен!');
+                        setTimeout(() => tg.close(), 1000);
+                    } else {
+                        alert('Заказ оформлен!');
+                    }
+                });
+                
+                document.getElementById('clearBtn').addEventListener('click', function() {
+                    cart = [];
+                    selectedPayment = null;
+                    document.getElementById('cartBadge').style.display = 'none';
+                    showCart();
+                });
+            }
+            
+            // Уведомления
+            function showNotification(msg) {
+                const notif = document.getElementById('notification');
+                notif.textContent = msg;
+                notif.classList.add('show');
+                setTimeout(() => notif.classList.remove('show'), 1500);
+            }
+        })();
+    </script>
+</body>
+</html>
                    
                    
