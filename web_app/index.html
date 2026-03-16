@@ -831,22 +831,38 @@
                 payment_method: selectedPayment
             };
             
-            console.log('📦 Отправка заказа:', orderData);
+            console.log('📦 Отправка заказа:', JSON.stringify(orderData, null, 2));
             
             if (tg) {
-                tg.sendData(JSON.stringify(orderData));
-                tg.HapticFeedback?.notificationOccurred('success');
-                showNotification('✅ Заказ отправлен!');
-                
-                // Очищаем корзину после отправки
-                setTimeout(() => {
+                try {
+                    // Отправляем данные в бот
+                    tg.sendData(JSON.stringify(orderData));
+                    console.log('✅ Данные отправлены в Telegram');
+                    
+                    // Показываем уведомление
+                    showNotification('✅ Заказ отправлен! Ожидайте подтверждения...');
+                    
+                    // Очищаем корзину
                     cart = [];
                     selectedPayment = null;
                     updateCartBadge();
-                    showMenu();
-                }, 1000);
+                    
+                    // Возвращаемся в меню через 2 секунды
+                    setTimeout(() => {
+                        showMenu();
+                    }, 2000);
+                    
+                } catch (error) {
+                    console.error('❌ Ошибка отправки:', error);
+                    showNotification('❌ Ошибка отправки заказа');
+                }
             } else {
-                alert('Демо-режим: ' + JSON.stringify(orderData, null, 2));
+                alert('ДЕМО РЕЖИМ\n\nЗаказ:\n' + JSON.stringify(orderData, null, 2));
+                // В демо-режиме тоже очищаем корзину
+                cart = [];
+                selectedPayment = null;
+                updateCartBadge();
+                showMenu();
             }
         };
 
@@ -915,5 +931,3 @@
     </script>
 </body>
 </html>
-</html>
-                   
